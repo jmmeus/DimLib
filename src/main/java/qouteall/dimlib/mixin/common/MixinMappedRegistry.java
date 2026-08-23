@@ -25,9 +25,7 @@ public abstract class MixinMappedRegistry<T> implements IMappedRegistry {
     @Final
     private Map<ResourceLocation, Holder.Reference<T>> byLocation;
     
-    @Shadow
-    @Final
-    private static Logger LOGGER;
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MappedRegistry.class);
     
     @Shadow
     public abstract @Nullable T byId(int id);

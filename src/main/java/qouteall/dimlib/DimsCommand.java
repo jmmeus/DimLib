@@ -131,7 +131,7 @@ public class DimsCommand {
                     MappedRegistry<LevelStem> dimensionRegistry =
                         DimensionImpl.getDimensionRegistry(world.getServer());
                     
-                    LevelStem levelStem = dimensionRegistry.get(world.dimension().location());
+                    LevelStem levelStem = dimensionRegistry.getOptional(world.dimension().location()).orElse(null);
                     
                     if (levelStem == null) {
                         context.getSource().sendFailure(
@@ -172,22 +172,27 @@ public class DimsCommand {
         CommandContext<CommandSourceStack> context, String newDimensionId
     ) {
         ResourceLocation newDimId;
-        try {
-            newDimId = ResourceLocation.parse(newDimensionId);
+        if (!newDimensionId.contains(":")) {
+            newDimId = ResourceLocation.fromNamespaceAndPath("custom", newDimensionId);
         }
-        catch (Exception e) {
-            context.getSource().sendFailure(Component.literal("Invalid dimension id"));
-            return null;
+        else {
+            try {
+                newDimId = ResourceLocation.parse(newDimensionId);
+            }
+            catch (Exception e) {
+                context.getSource().sendFailure(Component.literal("Invalid dimension id: " + newDimensionId));
+                return null;
+            }
+            
+            if (newDimId.getNamespace().equals("minecraft")) {
+                context.getSource().sendFailure(
+                    Component.literal("Namespace cannot be 'minecraft'. Use a custom namespace, e.g. 'custom:" + newDimId.getPath() + "'")
+                );
+                return null;
+            }
         }
         
         MinecraftServer server = context.getSource().getServer();
-        
-        if (newDimId.getNamespace().equals("minecraft")) {
-            context.getSource().sendFailure(
-                Component.literal("namespace cannot be minecraft")
-            );
-            return null;
-        }
         
         if (DimensionAPI.dimensionExistsInRegistry(server, newDimId)) {
             context.getSource().sendFailure(
