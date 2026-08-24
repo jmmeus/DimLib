@@ -6,7 +6,7 @@ plugins {
 	// https://modmuss50.github.io/mod-publish-plugin/
 }
 
-version = project.mod_version + "+mc" + project.minecraft_version
+version = project.mod_version + "+" + project.minecraft_version
 group = project.maven_group
 
 base {
